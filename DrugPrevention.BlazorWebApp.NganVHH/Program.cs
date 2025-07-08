@@ -1,6 +1,7 @@
 using DrugPrevention.BlazorWebApp.NganVHH.Components;
 using DrugPrevention.BlazorWebApp.NganVHH.Components.Account;
 using DrugPrevention.Repositories.NganVHH;
+using DrugPrevention.Repositories.NganVHH.Models;
 using DrugPrevention.Services.NganVHH;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +33,7 @@ builder.Services.AddScoped<IConsultantsTrongLHService, ConsultantsTrongLHService
 // Đăng ký ServiceProvider cuối cùng
 builder.Services.AddScoped<IServiceProviders, ServiceProviders>();
 
+
 // Add authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
@@ -45,7 +48,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-        options.CallbackPath = "/Account/Login/GoogleResponse";
+        //options.CallbackPath = "/signin-google";
         options.SaveTokens = true;
     });
 
@@ -117,6 +120,66 @@ app.MapPost("/login-handler", async (
         return Results.Redirect($"/Account/Login?ErrorMessage={errorMessage}");
     }
 });
+// ----------------
+
+app.MapGet("/external-login/google", (HttpContext context) =>
+{
+    Console.WriteLine("🔥 Redirecting to Google login...");
+    var props = new AuthenticationProperties
+    {
+        RedirectUri = "/google-handler",
+        Items =
+                {
+                    { "scheme", GoogleDefaults.AuthenticationScheme }
+                }
+    };
+    return Results.Challenge(props, [GoogleDefaults.AuthenticationScheme]);
+});
+
+app.MapGet("/google-handler", async (HttpContext context, IServiceProviders _serviceProviders) =>
+{
+    var result = await context.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    var google = await context.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+
+    if (!google.Succeeded)
+        return Results.Redirect("/Account/Login?error=google_failed");
+
+    var claims = google.Principal.Claims;
+    var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+    var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+    var userName = email?.Split('@')[0] ?? name;
+
+    var user = await _serviceProviders.SystemUserAccountService.GetUserByEmailAsync(email);
+
+    if (user == null)
+    {
+        user = new System_UserAccount
+        {
+            UserName = userName,
+            Email = email,
+            FullName = name,
+            Password = Guid.NewGuid().ToString(),
+            RoleId = 2,
+            CreatedDate = DateTime.Now,
+            IsActive = true,
+            CreatedBy = "Google"
+        };
+        await _serviceProviders.SystemUserAccountService.CreateUserAccountAsync(user);
+    }
+
+    var identity = new ClaimsIdentity(new[]
+    {
+        new Claim(ClaimTypes.Name, user.UserName),
+        new Claim(ClaimTypes.Role, user.RoleId.ToString()),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.NameIdentifier, user.UserAccountID.ToString()),
+    }, CookieAuthenticationDefaults.AuthenticationScheme);
+
+    await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+
+    return Results.Redirect("/AppointmentsNganVHHs/AppointmentsNganVHHList");
+});
+
 // ----------------
 
 app.MapPost("/logout-handler", async (HttpContext httpContext) =>

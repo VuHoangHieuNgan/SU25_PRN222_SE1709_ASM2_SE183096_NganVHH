@@ -97,7 +97,7 @@
 			RoleId = 2,
 			CreatedDate = DateTime.Now,
 			IsActive = true,
-			CreatedBy = "Google"
+			CreatedBy = GoogleDefaults.AuthenticationScheme,
 		};
 
 		await _serviceProviders.SystemUserAccountService.CreateUserAccountAsync(newUser);
