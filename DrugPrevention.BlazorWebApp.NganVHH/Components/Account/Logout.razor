@@ -1,0 +1,24 @@
+﻿@page "/Account/Logout"
+@inject IServiceProvider ServiceProvider
+@rendermode InteractiveServer
+
+@* Bạn có thể hiển thị một thông báo ngắn gọn trong khi chờ xử lý *@
+<p>Đang đăng xuất, vui lòng chờ...</p>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var httpContext = ServiceProvider.GetRequiredService<IHttpContextAccessor>()?.HttpContext;
+        if (httpContext != null)
+        {
+            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            // Clear cookies
+            httpContext.Response.Cookies.Delete("UserName");
+            httpContext.Response.Cookies.Delete("UserEmail");
+            httpContext.Response.Cookies.Delete("UserId");
+        }
+        
+        _navigationManager.NavigateTo("/Account/Login", true);
+    }
+}

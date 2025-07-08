@@ -1,0 +1,276 @@
+﻿@page "/Account/Login"
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using DrugPrevention.Services.NganVHH
+@inject IHttpContextAccessor HttpContextAccessor
+@layout Layout.EmptyLayout  
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Đăng nhập - Doccure</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link rel="shortcut icon" href="/assets/img/favicon.png" type="image/x-icon">
+	<link rel="stylesheet" href="/bootstrap//bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/plugins/fontawesome/css/fontawesome.min.css">
+	<link rel="stylesheet" href="/assets/plugins/fontawesome/css/all.min.css">
+	<link rel="stylesheet" href="/assets/css/iconsax.css">
+	<link rel="stylesheet" href="/assets/css/feather.css">
+	<link rel="stylesheet" href="/assets/css/custom.css">
+</head>
+
+<body class="account-page">
+	<div class="main-wrapper">
+		<div class="content">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-8 offset-md-2">
+						<div class="account-content">
+							<div class="row align-items-center justify-content-center">
+								<div class="col-md-7 col-lg-6 login-left">
+									<img src="/assets/img/login-banner.png" class="img-fluid" alt="Doccure Login" />
+								</div>
+
+								<div class="col-md-12 col-lg-6 login-right">
+									<div class="login-header">
+										<h3>Đăng nhập <span>Doccure</span></h3>
+									</div>
+
+									@if (!string.IsNullOrEmpty(ErrorMessage))
+									{
+										<div class="alert alert-danger d-flex align-items-center" role="alert">
+											<i class="fas fa-exclamation-circle me-2"></i>
+											<span>@ErrorMessage</span>
+										</div>
+									}
+
+									<form method="post" action="/login-handler">
+										<AntiforgeryToken />
+
+										<div class="mb-3">
+											<label for="UserName" class="form-label">
+												<i class="fas fa-user me-1"></i> Tên đăng nhập
+											</label>
+											<input type="text" class="form-control" id="UserName" name="UserName" placeholder="Nhập tên đăng nhập" required autocomplete="username" />
+										</div>
+
+										<div class="mb-3">
+											<div class="form-group-flex">
+												<label class="form-label" for="Password">
+													<i class="fas fa-lock me-1"></i> Mật khẩu
+												</label>
+												<a href="javascript:void(0);" class="forgot-link">Quên mật khẩu?</a>
+											</div>
+											<div class="pass-group">
+												<input type="password" class="form-control pass-input" id="Password" name="Password" placeholder="Nhập mật khẩu" required autocomplete="current-password" />
+												<span class="feather-eye-off toggle-password"></span>
+											</div>
+										</div>
+
+										<div class="mb-3 form-check-box">
+											<div class="form-check">
+												<input class="form-check-input" type="checkbox" id="remember" name="remember" />
+												<label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
+											</div>
+										</div>
+
+										<div class="mb-3">
+											<button type="submit" class="btn btn-primary-gradient w-100" id="loginBtn">
+												<i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
+											</button>
+										</div>
+
+										<div class="login-or">
+											<span class="or-line"></span>
+											<span class="span-or">hoặc</span>
+										</div>
+
+										<div class="social-login-btn">
+											<a href="/signin-google" class="btn btn-outline-primary w-100">
+												<img src="/assets/img/icons/google-icon.svg" alt="google-icon" style="width: 20px; height: 20px; margin-right: 8px;">
+												Đăng nhập bằng Google
+											</a>
+										</div>
+
+										<div class="account-signup mt-3">
+											<p>Chưa có tài khoản? <a href="#">Đăng ký</a></p>
+										</div>
+									</form>
+								</div> <!-- /login-right -->
+							</div> <!-- /row -->
+						</div> <!-- /account-content -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@* GIỮ LẠI TOÀN BỘ SCRIPT CỦA BẠN NGUYÊN VẸN *@
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const inputs = document.querySelectorAll('.form-control');
+
+			inputs.forEach(input => {
+				input.addEventListener('focus', function () {
+					this.parentElement.classList.add('focused');
+					this.closest('.form-group').style.transform = 'translateY(-2px)';
+				});
+
+				input.addEventListener('blur', function () {
+					if (!this.value) {
+						this.parentElement.classList.remove('focused');
+					}
+					this.closest('.form-group').style.transform = 'translateY(0)';
+				});
+
+				input.addEventListener('input', function () {
+					if (this.value.length > 0) {
+						this.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+					} else {
+						this.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+					}
+				});
+			});
+
+			const firstInput = document.getElementById('UserName');
+			if (firstInput && !firstInput.value) {
+				setTimeout(() => firstInput.focus(), 500);
+			}
+		});
+	</script>
+</body>
+</html>
+
+@code {
+	[SupplyParameterFromQuery(Name = "ErrorMessage")]
+	public string? ErrorMessage { get; set; }
+}
+
+
+@* @page "/Account/Login"
+@rendermode InteractiveServer
+
+@inject NavigationManager Navigation
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IServiceProviders _serviceProviders
+@inject HttpClient Http
+
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using System.Security.Claims
+@using System.ComponentModel.DataAnnotations
+
+<EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Tên đăng nhập</label>
+        <InputText @bind-Value="loginModel.UserName" />
+        <ValidationMessage For="@(() => loginModel.UserName)" />
+    </div>
+
+    <div>
+        <label>Mật khẩu</label>
+        <InputText type="password" @bind-Value="loginModel.Password" />
+        <ValidationMessage For="@(() => loginModel.Password)" />
+    </div>
+
+    <div>
+        <InputCheckbox @bind-Value="rememberLogin" /> Ghi nhớ đăng nhập
+    </div>
+
+    <button type="submit">Đăng nhập</button>
+
+    <hr />
+
+    <button type="button" @onclick="HandleGoogleLogin">Đăng nhập bằng Google</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div style="color:red">@ErrorMessage</div>
+}
+
+@code {
+    private LoginViewModel loginModel = new();
+    private string ErrorMessage = string.Empty;
+    private bool rememberLogin = false;
+
+    public class LoginViewModel
+    {
+        [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập")]
+        public string UserName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
+        public string Password { get; set; } = string.Empty;
+    }
+
+    private async Task HandleLogin()
+    {
+        // ErrorMessage = string.Empty;
+        // try
+        // {
+        //     var user = await _serviceProviders.SystemUserAccountService.GetUserAccountAsync(loginModel.UserName, loginModel.Password);
+        //     if (user == null)
+        //     {
+        //         ErrorMessage = "Sai tên đăng nhập hoặc mật khẩu.";
+        //         return;
+        //     }
+
+        //     var claims = new List<Claim>
+        //     {
+        //         new Claim(ClaimTypes.Name, user.UserName),
+        //         new Claim(ClaimTypes.Role, user.RoleId.ToString()),
+        //         new Claim(ClaimTypes.NameIdentifier, user.UserAccountID.ToString())
+        //     };
+
+        //     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        //     var principal = new ClaimsPrincipal(identity);
+
+        //     var context = HttpContextAccessor.HttpContext;
+        //     await context!.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+        //     Navigation.NavigateTo("/AppointmentsNganVHHs/AppointmentsNganVHHList", true);
+        // }
+        // catch (Exception e)
+        // {
+        //     Console.WriteLine(e.Message);
+        //     ErrorMessage = "Lỗi trong quá trình đăng nhập.";
+        // }
+        ErrorMessage = string.Empty;
+
+        var content = new FormUrlEncodedContent(new[]
+        {
+            new KeyValuePair<string, string>("userName", loginModel.UserName),
+            new KeyValuePair<string, string>("password", loginModel.Password),
+        });
+
+        var response = await Http.PostAsync("/login-handler", content);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Redirect)
+        {
+            var redirectUrl = response.Headers.Location?.ToString();
+            if (!string.IsNullOrEmpty(redirectUrl))
+            {
+                Navigation.NavigateTo(redirectUrl, true);
+            }
+        }
+        else
+        {
+            ErrorMessage = "Sai tên đăng nhập hoặc mật khẩu.";
+        }
+    }
+
+    private async Task HandleGoogleLogin()
+    {
+        var context = HttpContextAccessor.HttpContext;
+        var props = new AuthenticationProperties { RedirectUri = "/Account/Login/GoogleResponse" };
+        await context!.ChallengeAsync("Google", props);
+    }
+} *@

@@ -1,0 +1,137 @@
+﻿@page "/AppointmentsNganVHHs/AppointmentsNganVHHDetail/{AppointmentNganID:int}"
+@attribute [StreamRendering]
+@using DrugPrevention.Repositories.NganVHH.Models
+
+<h3 class="my-4">AppointmentsNganVHH Detail</h3>
+
+@if (appointmentsNganVHH == null)
+{
+	<!-- From Uiverse.io by isfan4ik -->
+
+
+	<div class="loader">
+		<div class="container">
+			<div class="coffee-header">
+				<div class="coffee-header__buttons coffee-header__button-one"></div>
+				<div class="coffee-header__buttons coffee-header__button-two"></div>
+				<div class="coffee-header__display"></div>
+				<div class="coffee-header__details"></div>
+			</div>
+			<div class="coffee-medium">
+				<div class="coffe-medium__exit"></div>
+				<div class="coffee-medium__arm"></div>
+				<div class="coffee-medium__liquid"></div>
+				<div class="coffee-medium__smoke coffee-medium__smoke-one"></div>
+				<div class="coffee-medium__smoke coffee-medium__smoke-two"></div>
+				<div class="coffee-medium__smoke coffee-medium__smoke-three"></div>
+				<div class="coffee-medium__smoke coffee-medium__smoke-for"></div>
+				<div class="coffee-medium__cup"></div>
+			</div>
+			<div class="coffee-footer"></div>
+		</div>
+	</div>
+
+
+
+}
+else
+{
+	<div class="card shadow-sm">
+		<div class="card-header bg-primary text-white">
+			AppointmentNganVHHID: @appointmentsNganVHH.AppointmentNganVHHID
+		</div>
+		<div class="card-body">
+			<dl class="row">
+				<dt class="col-sm-4">AppointmentNganVHHID</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.AppointmentNganVHHID</dd>
+
+				<dt class="col-sm-4">UserEmail</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.User.Email</dd> 
+
+				<dt class="col-sm-4">ConsultantEmail</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.Consultant.User.Email</dd>
+
+				<dt class="col-sm-4">AppointmentDateTime</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.AppointmentDateTime.ToString("yyyy-MM-dd HH:mm")</dd>
+
+				<dt class="col-sm-4">Duration</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.Duration</dd>
+
+				<dt class="col-sm-4">ConsultationType</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.ConsultationType</dd>
+
+				<dt class="col-sm-4">AssessmentType</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.AssessmentType</dd>
+
+				<dt class="col-sm-4">IsInterpreterNeeded</dt>
+				<dd class="col-sm-8">@((appointmentsNganVHH.IsInterpreterNeeded ?? false) ? "True" : "False")</dd>
+
+				<dt class="col-sm-4">PrimaryIssue</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.PrimaryIssue</dd>
+
+				<dt class="col-sm-4">RiskLevel</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.RiskLevel</dd>
+
+				<dt class="col-sm-4">Status</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.Status</dd>
+
+				<dt class="col-sm-4">FeedbackRating</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.FeedbackRating</dd>
+
+				<dt class="col-sm-4">Notes</dt>
+				<dd class="col-sm-8">@appointmentsNganVHH.Notes</dd>
+
+				<dt class="col-sm-4">RecordingLink</dt>
+				<dd class="col-sm-8">
+					@if (!string.IsNullOrWhiteSpace(appointmentsNganVHH.RecordingLink))
+					{
+						<a href="@appointmentsNganVHH.RecordingLink" target="_blank">@appointmentsNganVHH.RecordingLink</a>
+					}
+					else
+					{
+						<span class="text-muted">N/A</span>
+					}
+				</dd>
+				<a href="/AppointmentsNganVHHs/AppointmentsNganVHHForm/@appointmentsNganVHH.AppointmentNganVHHID" class="btn btn-info">Edit</a>
+				&nbsp;&nbsp;
+				<button type="button" class="btn btn-danger" onclick="@(async () => await DeleteAppointmentNganVHH(appointmentsNganVHH.AppointmentNganVHHID))">Delete</button>
+			</dl>
+		</div>
+	</div>
+
+}
+
+
+@code {
+	[Parameter]
+	public int AppointmentNganID { get; set; }
+
+	private AppointmentsNganVHH appointmentsNganVHH;
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Slow living 
+		await Task.Delay(1000); 
+
+		appointmentsNganVHH = await _serviceProviders.AppointmentsNganVHHService.GetByIdAsync(AppointmentNganID);
+	}
+
+	protected async Task<bool> DeleteAppointmentNganVHH(int appointmentId)
+	{
+		var confirm = await _jsRuntime.InvokeAsync<bool>("confirm", $"Do you want to delete this item ({AppointmentNganID})?");
+
+		if (confirm)
+		{
+			var result = await _serviceProviders.AppointmentsNganVHHService.DeleteAsync(appointmentId);
+
+			if (result)
+			{
+				_navigationManager.NavigateTo("/AppointmentsNganVHHs/AppointmentsNganVHHList", false);
+			}
+		}
+
+		return false;
+	}
+
+
+}

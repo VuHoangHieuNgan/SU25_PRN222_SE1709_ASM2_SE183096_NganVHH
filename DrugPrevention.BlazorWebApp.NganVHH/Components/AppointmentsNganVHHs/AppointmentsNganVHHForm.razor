@@ -1,0 +1,206 @@
+﻿@page "/AppointmentsNganVHHs/AppointmentsNganVHHForm/{AppointmentNganID:int?}"
+@using System.ComponentModel.DataAnnotations
+@using DrugPrevention.Repositories.NganVHH.Models
+@attribute [StreamRendering]
+
+<h3>AppointmentsNganVHHForm</h3>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+	<h3 class="mb-0">📋 Medical Incident List</h3>
+	<button class="btn btn-success" @onclick="NavigateToCreate">
+		<i class="bi bi-plus-lg me-1"></i> Create new
+	</button>
+</div>
+<EditForm Model="@appointmentsNganVHH" OnValidSubmit="SaveAppointmentNganVHH">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+
+	<div class="card shadow rounded-3 p-4">
+		<h5 class="card-title text-primary mb-3">appointmentsNganVHH Form</h5>
+		<div class="row g-3">
+
+			<div class="col-md-6">
+				<label class="form-label fw-semibold">User</label>
+				<InputSelect class="form-control" @bind-Value="appointmentsNganVHH.UserID">
+					<option value="">Select User</option>
+					@foreach (var consultants in consultantsTrongLHs)
+					{
+						<option value="@consultants.ConsultantTrongLHID">@consultants.ConsultantTrongLHID - @consultants.User.FirstName @consultants.User.LastName - @consultants.Specialization - @consultants.User.Email</option>
+					}
+				</InputSelect>
+			</div>
+
+			<div class="col-md-6">
+				<label class="form-label fw-semibold">Consultant</label>
+				<InputSelect class="form-control" @bind-Value="appointmentsNganVHH.ConsultantID">
+					<option value="">Select Consultant</option>
+					@foreach (var users in usersTuyenTMs)
+					{
+						<option value="@users.UserTuyenTMID">@users.FirstName - @users.LastName - @users.Email</option>
+					}
+				</InputSelect>
+			</div>
+
+			<div class="col-md-6">
+				<label class="form-label fw-semibold">appointmentsNganVHH Date</label>
+				<InputDate class="form-control" @bind-Value="appointmentsNganVHH.AppointmentDateTime" />
+				<ValidationMessage For="@(() => appointmentsNganVHH.AppointmentDateTime)" />
+			</div>
+
+			<div class="col-md-6">
+				<label class="form-label fw-semibold">Duration (minutes)</label>
+				<InputNumber class="form-control" @bind-Value="appointmentsNganVHH.Duration" />
+				<ValidationMessage For="@(() => appointmentsNganVHH.Duration)" />
+			</div>
+
+			<div class="col-md-6">
+				<label class="form-label fw-semibold">Consultation Type</label>
+				<InputText class="form-control" @bind-Value="appointmentsNganVHH.ConsultationType" />
+				<ValidationMessage For="@(() => appointmentsNganVHH.ConsultationType)" />
+			</div>
+
+			<div class="col-md-6">
+				<label class="form-label fw-semibold">Assessment Type</label>
+				<InputText class="form-control" @bind-Value="appointmentsNganVHH.AssessmentType" />
+				<ValidationMessage For="@(() => appointmentsNganVHH.AssessmentType)" />
+			</div>
+
+			<div class="col-md-6">
+				<label class="form-label fw-semibold">Need Interpreter?</label>
+				<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.IsInterpreterNeeded">
+					<option value="">-- Select --</option>
+					<option value="true">Yes</option>
+					<option value="false">No</option>
+				</InputSelect>
+				<ValidationMessage For="@(() => appointmentsNganVHH.IsInterpreterNeeded)" />
+			</div>
+
+			<div class="col-md-6">
+				<label class="form-label fw-semibold">Risk Level</label>
+				<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.RiskLevel">
+					<option value="">-- Select --</option>
+					<option>Low</option>
+					<option>Medium</option>
+					<option>High</option>
+				</InputSelect>
+				<ValidationMessage For="@(() => appointmentsNganVHH.RiskLevel)" />
+			</div>
+
+			<div class="col-12">
+				<label class="form-label fw-semibold">Primary Issue</label>
+				<InputTextArea class="form-control" @bind-Value="appointmentsNganVHH.PrimaryIssue" rows="2" maxlength="255" />
+				<ValidationMessage For="@(() => appointmentsNganVHH.PrimaryIssue)" />
+			</div>
+
+			<div class="col-md-6">
+				<label class="form-label fw-semibold">Status</label>
+				<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.Status">
+					<option>Scheduled</option>
+					<option>In-Progress</option>
+					<option>Completed</option>
+					<option>Cancelled</option>
+				</InputSelect>
+				<ValidationMessage For="@(() => appointmentsNganVHH.Status)" />
+			</div>
+
+			<div class="col-md-6">
+				<label class="form-label fw-semibold">Feedback Rating (1–5)</label>
+				<InputNumber class="form-control" @bind-Value="appointmentsNganVHH.FeedbackRating" />
+				<ValidationMessage For="@(() => appointmentsNganVHH.FeedbackRating)" />
+			</div>
+
+			<div class="col-12">
+				<label class="form-label fw-semibold">Recording Link</label>
+				<InputText class="form-control" @bind-Value="appointmentsNganVHH.RecordingLink" />
+				<ValidationMessage For="@(() => appointmentsNganVHH.RecordingLink)" />
+			</div>
+
+			<div class="col-12">
+				<label class="form-label fw-semibold">Notes</label>
+				<InputTextArea class="form-control" @bind-Value="appointmentsNganVHH.Notes" rows="3" />
+				<ValidationMessage For="@(() => appointmentsNganVHH.Notes)" />
+			</div>
+		</div>
+
+		<div class="text-end mt-4">
+			<button type="submit" class="btn btn-primary">
+				<i class="bi bi-save"></i> Submit
+			</button>
+			<button type="button" class="btn btn-secondary ms-2" @onclick="Cancel">
+				<i class="bi bi-x-circle"></i> Cancel
+			</button>
+
+		</div>
+	</div>
+</EditForm>
+
+@code {
+	[Parameter]
+	public int? AppointmentNganID { get; set; }
+
+	public AppointmentsNganVHH appointmentsNganVHH = new();
+	public List<ConsultantsTrongLH> consultantsTrongLHs = new();
+	public List<UsersTuyenTM> usersTuyenTMs = new();
+
+	private void Cancel()
+	{
+		_navigationManager.NavigateTo("/AppointmentsNganVHHs/AppointmentsNganVHHList");
+	}
+
+	private void NavigateToCreate()
+	{
+		_navigationManager.NavigateTo("/AppointmentsNganVHHs/AppointmentsNganVHHForm");
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+
+		consultantsTrongLHs = await _serviceProviders.ConsultantsTrongLHService.GetAllAsync();
+		usersTuyenTMs = await _serviceProviders.UsersTuyenTMService.GetAllAsync();
+
+		if (AppointmentNganID.HasValue && AppointmentNganID.Value > 0)
+		{
+			var entity = await _serviceProviders.AppointmentsNganVHHService.GetByIdAsync(AppointmentNganID.Value);
+			if (entity != null)
+			{
+				// Detach navigation properties to avoid EF Core tracking conflicts
+				entity.User = null;
+				entity.Consultant = null;
+				appointmentsNganVHH = entity;
+			}
+			else
+			{
+				appointmentsNganVHH = new AppointmentsNganVHH();
+			}
+		}
+		else
+		{
+			appointmentsNganVHH = new AppointmentsNganVHH();
+		}
+	}
+
+	protected async Task SaveAppointmentNganVHH()
+	{
+		int result = 0;
+
+		// Detach navigation properties to avoid EF Core tracking conflicts
+		appointmentsNganVHH.User = null;
+		appointmentsNganVHH.Consultant = null;
+
+		if (AppointmentNganID.HasValue && AppointmentNganID.Value > 0)
+		{
+			result = await _serviceProviders.AppointmentsNganVHHService.UpdateAsync(appointmentsNganVHH);
+		}
+		else
+		{
+			result = await _serviceProviders.AppointmentsNganVHHService.CreateAsync(appointmentsNganVHH);
+			
+		}
+
+		if (result > 0)
+		{
+			_navigationManager.NavigateTo("/AppointmentsNganVHHs/AppointmentsNganVHHList");
+		}
+	}
+}

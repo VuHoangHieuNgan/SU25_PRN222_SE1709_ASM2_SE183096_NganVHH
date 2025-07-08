@@ -1,0 +1,132 @@
+﻿@page "/AppointmentsNganVHHs/AppointmentsNganVHHList"
+@attribute [StreamRendering]
+@using DrugPrevention.Repositories.NganVHH.Models
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+	<h3 class="mb-0">📋 Appointments NganVHH List</h3>
+	<button class="btn btn-success" @onclick="NavigateToCreate">
+		<i class="bi bi-plus-lg me-1"></i> Create new
+	</button>
+</div>
+
+<!-- Form tìm kiếm -->
+<div class="mb-3">
+	<div class="row g-2">
+		<div class="col">
+			<input class="form-control" placeholder="Primary Issue" @bind="PrimaryIssue" />
+		</div>
+		<div class="col">
+			<input class="form-control" placeholder="Duration" type="number" @bind="Duration" />
+		</div>
+		<div class="col">
+			<input class="form-control" placeholder="Specialization" @bind="Specialization" />
+		</div>
+		<div class="col-auto">
+			<button class="btn btn-primary" @onclick="Search">Tìm kiếm</button>
+			<button class="btn btn-secondary ms-2" @onclick="ResetSearch">Làm mới</button>
+		</div>
+	</div>
+</div>
+
+	@if (appointmentsNganVHHs == null)
+{
+	<div class="d-flex justify-content-center align-items-center" style="height: 300px;">
+		<div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
+			<div class="wheel"></div>
+			<div class="hamster">
+				<div class="hamster__body">
+					<div class="hamster__head">
+						<div class="hamster__ear"></div>
+						<div class="hamster__eye"></div>
+						<div class="hamster__nose"></div>
+					</div>
+					<div class="hamster__limb hamster__limb--fr"></div>
+					<div class="hamster__limb hamster__limb--fl"></div>
+					<div class="hamster__limb hamster__limb--br"></div>
+					<div class="hamster__limb hamster__limb--bl"></div>
+					<div class="hamster__tail"></div>
+				</div>
+			</div>
+			<div class="spoke"></div>
+		</div>
+
+	</div>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>AppointmentNganVHHID</th>
+				<th>AppointmentDateTime</th>
+				<th>ConsultationType</th>
+				<th>AssessmentType</th>
+				<th>IsInterpreterNeeded</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var appointmentsNganVHH in appointmentsNganVHHs)
+			{
+				<tr>
+					<td>@appointmentsNganVHH.AppointmentNganVHHID</td>
+					<td>@appointmentsNganVHH.AppointmentDateTime</td>
+					<td>@appointmentsNganVHH.ConsultationType</td>
+					<td>@appointmentsNganVHH.AssessmentType</td>
+					<td>@appointmentsNganVHH.IsInterpreterNeeded</td>
+					<td>
+						<a href="/AppointmentsNganVHHs/AppointmentsNganVHHDetail/@appointmentsNganVHH.AppointmentNganVHHID" class="btn btn-sm btn-primary">Detail</a>
+						<a href="/AppointmentsNganVHHs/AppointmentsNganVHHForm/@appointmentsNganVHH.AppointmentNganVHHID" class="btn btn-sm btn-warning">Edit</a>
+					</td>
+				</tr>
+
+			}
+		</tbody>
+	</table>
+}
+
+@code {
+	private List<AppointmentsNganVHH> appointmentsNganVHHs;
+
+	public string PrimaryIssue { get; set; } = string.Empty;
+	public int? Duration { get; set; }
+	public string Specialization { get; set; } = string.Empty;
+
+	[Parameter]
+	public int CurrentPage { get; set; } = 1;
+	[Parameter]
+	public int TotalPages { get; set; }
+	[Parameter]
+	public int PageSize { get; set; } = 10;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadAll();
+	}
+
+	private async Task LoadAll()
+	{
+		appointmentsNganVHHs = await _serviceProviders.AppointmentsNganVHHService.GetAllAsync();
+	}
+
+	private async Task Search()
+	{
+		appointmentsNganVHHs = await _serviceProviders.AppointmentsNganVHHService.SearchAsync(
+			PrimaryIssue ?? string.Empty,
+			Duration,
+			Specialization ?? string.Empty
+		);
+	}
+
+	private async Task ResetSearch()
+	{
+		PrimaryIssue = string.Empty;
+		Duration = null;
+		Specialization = string.Empty;
+		await LoadAll();
+	}
+
+	private void NavigateToCreate()
+	{
+		_navigationManager.NavigateTo("/AppointmentsNganVHHs/AppointmentsNganVHHForm");
+	}
+}
