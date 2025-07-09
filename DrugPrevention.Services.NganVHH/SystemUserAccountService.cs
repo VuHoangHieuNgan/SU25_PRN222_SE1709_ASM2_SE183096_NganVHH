@@ -22,7 +22,7 @@ namespace DrugPrevention.Services.NganVHH
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<System_UserAccount> GetUserAccountAsync(string userName, string password)
+        public async Task<System_UserAccount?> GetUserAccountAsync(string userName, string password)
         {
             return await _unitOfWork.SystemUserAccountRepository.GetUserAccount(userName, password);
         }

@@ -31,6 +31,26 @@
                 <span class="bi bi-calendar-event-fill-nav-menu" aria-hidden="true"></span> Appointments
             </NavLink>
         </div>
+        <AuthorizeView>
+            <Authorized>
+                @* ... Hello user ... *@
+                <div class="nav-item px-3">
+                    <form action="/logout-handler" method="post" data-enhance-nav="false">
+                        <AntiforgeryToken />
+                        <button type="submit" class="nav-link" style="background:none; border:none; width:100%; text-align:left;">
+                            <span class="bi bi-box-arrow-right-nav-menu" aria-hidden="true"></span> Logout
+                        </button>
+                    </form>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/Account/Login">
+                        <span class="bi bi-box-arrow-in-right-nav-menu" aria-hidden="true"></span> Login
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
     </nav>
 </div>
 

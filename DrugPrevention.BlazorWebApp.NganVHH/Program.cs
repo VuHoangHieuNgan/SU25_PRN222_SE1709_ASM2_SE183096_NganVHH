@@ -46,8 +46,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     })
     .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
         //options.CallbackPath = "/signin-google";
         options.SaveTokens = true;
     });
@@ -55,8 +55,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Add authorization
 builder.Services.AddAuthorization();
 
+// AddAntiforgery to support CSRF protection
+builder.Services.AddAntiforgery();
 
-//builder.Services.AddAntiforgery();
 builder.Services.AddHttpClient<HttpClient>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7115");
@@ -149,7 +150,7 @@ app.MapGet("/google-handler", async (HttpContext context, IServiceProviders _ser
     var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
     var userName = email?.Split('@')[0] ?? name;
 
-    var user = await _serviceProviders.SystemUserAccountService.GetUserByEmailAsync(email);
+    var user = await _serviceProviders.SystemUserAccountService.GetUserByEmailAsync(email!);
 
     if (user == null)
     {
@@ -157,9 +158,11 @@ app.MapGet("/google-handler", async (HttpContext context, IServiceProviders _ser
         {
             UserName = userName,
             Email = email,
-            FullName = name,
-            Password = Guid.NewGuid().ToString(),
-            RoleId = 2,
+            FullName = name ?? userName,
+            Password = Guid.NewGuid().ToString(), // Random password cho Google users
+            Phone = "",
+            EmployeeCode = userName,
+            RoleId = 2, // Default role (có thể thay đổi theo logic của bạn)
             CreatedDate = DateTime.Now,
             IsActive = true,
             CreatedBy = "Google"
@@ -169,9 +172,9 @@ app.MapGet("/google-handler", async (HttpContext context, IServiceProviders _ser
 
     var identity = new ClaimsIdentity(new[]
     {
-        new Claim(ClaimTypes.Name, user.UserName),
+        new Claim(ClaimTypes.Name, user.UserName!),
         new Claim(ClaimTypes.Role, user.RoleId.ToString()),
-        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Email, user.Email!),
         new Claim(ClaimTypes.NameIdentifier, user.UserAccountID.ToString()),
     }, CookieAuthenticationDefaults.AuthenticationScheme);
 

@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Authentication.Cookies
 @using DrugPrevention.Services.NganVHH
 @inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @layout Layout.EmptyLayout  
 
 <!DOCTYPE html>
@@ -32,7 +33,7 @@
 						<div class="account-content">
 							<div class="row align-items-center justify-content-center">
 								<div class="col-md-7 col-lg-6 login-left">
-									<img src="/assets/img/login-banner.png" class="img-fluid" alt="Doccure Login" />
+									<img src="/assets/img/login-banner.png" class="img-fluid" alt="Drug Prevention Login" />
 								</div>
 
 								<div class="col-md-12 col-lg-6 login-right">
@@ -50,10 +51,11 @@
 
 									<form method="post" action="/login-handler">
 										<AntiforgeryToken />
+										<input name="__RequestVerificationToken" type="hidden" value="@token" />
 
 										<div class="mb-3">
 											<label for="UserName" class="form-label">
-												<i class="fas fa-user me-1"></i> Tên đăng nhập
+												<i class="fas fa-user me-1"></i> UserName
 											</label>
 											<input type="text" class="form-control" id="UserName" name="UserName" placeholder="Nhập tên đăng nhập" required autocomplete="username" />
 										</div>
@@ -61,7 +63,7 @@
 										<div class="mb-3">
 											<div class="form-group-flex">
 												<label class="form-label" for="Password">
-													<i class="fas fa-lock me-1"></i> Mật khẩu
+													<i class="fas fa-lock me-1"></i> Password
 												</label>
 												<a href="javascript:void(0);" class="forgot-link">Quên mật khẩu?</a>
 											</div>
@@ -147,6 +149,14 @@
 </html>
 
 @code {
+	private string token = "";
+
+	protected override async Task OnInitializedAsync()
+	{
+		var tokens = Antiforgery.GetTokens(HttpContextAccessor.HttpContext!);
+		token = tokens.RequestToken!;
+	}
+
 	[SupplyParameterFromQuery(Name = "ErrorMessage")]
 	public string? ErrorMessage { get; set; }
 }

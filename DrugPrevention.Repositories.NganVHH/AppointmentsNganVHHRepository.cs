@@ -39,11 +39,12 @@ namespace DrugPrevention.Repositories.NganVHH
         {
             var list = await _context.AppointmentsNganVHHs
                 .Include(i => i.Consultant)
+                    .ThenInclude(c => c.User)
                 .Include(i => i.User)
                 .Where(i =>
-                    (i.PrimaryIssue.Contains(primaryIssue) || string.IsNullOrEmpty(primaryIssue))
-                    && (i.Duration == duration || duration == null)
-                    && (i.Consultant.Specialization.Contains(specialization) || string.IsNullOrEmpty(specialization))
+                    (string.IsNullOrEmpty(primaryIssue) || (i.PrimaryIssue != null && i.PrimaryIssue.Contains(primaryIssue)))
+                    && (duration == null || i.Duration == duration)
+                    && (string.IsNullOrEmpty(specialization) || (i.Consultant != null && i.Consultant.Specialization != null && i.Consultant.Specialization.Contains(specialization)))
                     ).ToListAsync();
 
             return list ?? new List<AppointmentsNganVHH>();
