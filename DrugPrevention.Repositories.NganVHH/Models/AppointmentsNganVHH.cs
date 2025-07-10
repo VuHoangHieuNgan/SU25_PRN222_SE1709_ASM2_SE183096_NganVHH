@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
+using DrugPrevention.Repositories.NganVHH.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace DrugPrevention.Repositories.NganVHH.Models;
@@ -76,7 +78,7 @@ public partial class AppointmentsNganVHH
     public string Notes { get; set; }
 
     [StringLength(500)]
-    [Url(ErrorMessage = "RecordingLink phải là một đường link hợp lệ!")]
+    [OptionalUrl(ErrorMessage = "RecordingLink phải là một đường link hợp lệ!")]
     public string RecordingLink { get; set; }
 
     [ForeignKey("ConsultantID")]

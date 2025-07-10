@@ -191,7 +191,7 @@
 				entity.User = null;
 				entity.Consultant = null;
 				appointmentsNganVHH = entity;
-				
+
 				// Lưu bản sao original để restore khi status thay đổi
 				originalAppointment = new AppointmentsNganVHH
 				{
@@ -233,25 +233,8 @@
 		}
 	}
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
+	protected async Task SaveAppointmentNganVHH()
 	{
-		if (firstRender)
-		{
-			// Clear any previous validation errors
-			await _jsRuntime.InvokeVoidAsync("clearAllErrors");
-		}
-	}
-
-		protected async Task SaveAppointmentNganVHH()
-	{
-		// Gọi JavaScript validation trước khi submit
-		bool isValid = await _jsRuntime.InvokeAsync<bool>("validateAppointmentForm");
-		
-		if (!isValid)
-		{
-			// Validation failed - không submit
-			return;
-		}
 
 		int result = 0;
 
@@ -269,7 +252,7 @@
 				appointmentsNganVHH.Status = "Scheduled";
 			}
 			result = await _serviceProviders.AppointmentsNganVHHService.CreateAsync(appointmentsNganVHH);
-			
+
 		}
 
 		if (result > 0)
@@ -307,7 +290,7 @@
 			// ✅ QUAN TRỌNG: Đợi UI render trước rồi mới restore
 			StateHasChanged(); // Trigger render với status mới
 			await Task.Delay(50); // Đảm bảo UI đã render xong
-			
+
 			RestoreDisabledFields(); // Gọi sync method
 		}
 	}
@@ -317,8 +300,8 @@
 		// Danh sách tất cả các field có thể bị disable
 		var allFields = new[]
 		{
-			"UserID", "ConsultantID", "AppointmentDateTime", "Duration", 
-			"ConsultationType", "AssessmentType", "IsInterpreterNeeded", 
+			"UserID", "ConsultantID", "AppointmentDateTime", "Duration",
+			"ConsultationType", "AssessmentType", "IsInterpreterNeeded",
 			"RiskLevel", "PrimaryIssue", "FeedbackRating", "RecordingLink", "Notes"
 		};
 

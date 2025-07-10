@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace DrugPrevention.Repositories.NganVHH.Models
+namespace DrugPrevention.Repositories.NganVHH.Validation
 {
     /// <summary>
     /// Attribute kiểm tra ngày giờ phải là hiện tại hoặc tương lai (không cho phép quá khứ)
