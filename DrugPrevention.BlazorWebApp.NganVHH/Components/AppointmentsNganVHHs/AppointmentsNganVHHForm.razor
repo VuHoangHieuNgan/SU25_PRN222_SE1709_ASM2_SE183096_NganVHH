@@ -110,7 +110,7 @@
 
 			@if (IsEditMode)
 			{
-				<div class="col-md-6">
+				@* <div class="col-md-6">
 					<label class="form-label fw-semibold">Status</label>
 					<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.Status" @onchange="OnStatusChanged">
 						<option>Scheduled</option>
@@ -118,7 +118,18 @@
 						<option>Completed</option>
 						<option>Cancelled</option>
 					</InputSelect>
-				</div>
+				</div> *@
+				<InputSelect TValue="string"
+							 class="form-select"
+							 Value="@appointmentsNganVHH.Status"
+							 ValueChanged="@(e => HandleStatusChanged(e))"
+							 ValueExpression="(() => appointmentsNganVHH.Status)">
+					<option>Scheduled</option>
+					<option>In-Progress</option>
+					<option>Completed</option>
+					<option>Cancelled</option>
+				</InputSelect>
+
 
 				<div class="col-md-6">
 					<label class="form-label fw-semibold">FeedbackRating</label>
@@ -155,6 +166,7 @@
 	public int? AppointmentNganID { get; set; }
 
 	public AppointmentsNganVHH appointmentsNganVHH = new();
+	public AppointmentsNganVHH originalAppointment = new(); // Lưu data gốc từ database
 	public List<ConsultantsTrongLH> consultantsTrongLHs = new();
 	public List<UsersTuyenTM> usersTuyenTMs = new();
 
@@ -188,10 +200,30 @@
 				entity.User = null;
 				entity.Consultant = null;
 				appointmentsNganVHH = entity;
+				
+				// Lưu bản sao original để restore khi status thay đổi
+				originalAppointment = new AppointmentsNganVHH
+				{
+					AppointmentNganVHHID = entity.AppointmentNganVHHID,
+					UserID = entity.UserID,
+					ConsultantID = entity.ConsultantID,
+					AppointmentDateTime = entity.AppointmentDateTime,
+					Duration = entity.Duration,
+					ConsultationType = entity.ConsultationType,
+					AssessmentType = entity.AssessmentType,
+					IsInterpreterNeeded = entity.IsInterpreterNeeded,
+					RiskLevel = entity.RiskLevel,
+					PrimaryIssue = entity.PrimaryIssue,
+					Status = entity.Status,
+					FeedbackRating = entity.FeedbackRating,
+					RecordingLink = entity.RecordingLink,
+					Notes = entity.Notes
+				};
 			}
 			else
 			{
 				appointmentsNganVHH = new AppointmentsNganVHH();
+				originalAppointment = new AppointmentsNganVHH();
 			}
 		}
 		else
@@ -205,6 +237,8 @@
 				IsInterpreterNeeded = false,
 				RiskLevel = "Low"
 			};
+			// Trong create mode không có original data
+			originalAppointment = new AppointmentsNganVHH();
 		}
 	}
 
@@ -272,9 +306,76 @@
 		};
 	}
 
-	private void OnStatusChanged(ChangeEventArgs e)
+	private async Task HandleStatusChanged(string newValue)
 	{
-		appointmentsNganVHH.Status = e.Value?.ToString() ?? "";
-		StateHasChanged();
+		var oldStatus = appointmentsNganVHH.Status;
+		appointmentsNganVHH.Status = newValue;
+
+		if (IsEditMode)
+		{
+			// ✅ QUAN TRỌNG: Đợi UI render trước rồi mới restore
+			StateHasChanged(); // Trigger render với status mới
+			await Task.Delay(50); // Đảm bảo UI đã render xong
+			
+			RestoreDisabledFields(); // Gọi sync method
+		}
+	}
+
+	private void RestoreDisabledFields()
+	{
+		// Danh sách tất cả các field có thể bị disable
+		var allFields = new[]
+		{
+			"UserID", "ConsultantID", "AppointmentDateTime", "Duration", 
+			"ConsultationType", "AssessmentType", "IsInterpreterNeeded", 
+			"RiskLevel", "PrimaryIssue", "FeedbackRating", "RecordingLink", "Notes"
+		};
+
+		// Reset các field bị disable về giá trị original
+		foreach (var fieldName in allFields)
+		{
+			if (!IsFieldEnabled(fieldName))
+			{
+				switch (fieldName)
+				{
+					case "UserID":
+						appointmentsNganVHH.UserID = originalAppointment.UserID;
+						break;
+					case "ConsultantID":
+						appointmentsNganVHH.ConsultantID = originalAppointment.ConsultantID;
+						break;
+					case "AppointmentDateTime":
+						appointmentsNganVHH.AppointmentDateTime = originalAppointment.AppointmentDateTime;
+						break;
+					case "Duration":
+						appointmentsNganVHH.Duration = originalAppointment.Duration;
+						break;
+					case "ConsultationType":
+						appointmentsNganVHH.ConsultationType = originalAppointment.ConsultationType;
+						break;
+					case "AssessmentType":
+						appointmentsNganVHH.AssessmentType = originalAppointment.AssessmentType;
+						break;
+					case "IsInterpreterNeeded":
+						appointmentsNganVHH.IsInterpreterNeeded = originalAppointment.IsInterpreterNeeded;
+						break;
+					case "RiskLevel":
+						appointmentsNganVHH.RiskLevel = originalAppointment.RiskLevel;
+						break;
+					case "PrimaryIssue":
+						appointmentsNganVHH.PrimaryIssue = originalAppointment.PrimaryIssue;
+						break;
+					case "FeedbackRating":
+						appointmentsNganVHH.FeedbackRating = originalAppointment.FeedbackRating;
+						break;
+					case "RecordingLink":
+						appointmentsNganVHH.RecordingLink = originalAppointment.RecordingLink;
+						break;
+					case "Notes":
+						appointmentsNganVHH.Notes = originalAppointment.Notes;
+						break;
+				}
+			}
+		}
 	}
 }
