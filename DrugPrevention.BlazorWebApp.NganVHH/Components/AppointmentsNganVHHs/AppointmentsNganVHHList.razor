@@ -60,9 +60,13 @@ else
 			<tr>
 				<th>AppointmentNganVHHID</th>
 				<th>AppointmentDateTime</th>
-				<th>ConsultationType</th>
 				<th>AssessmentType</th>
-				<th>IsInterpreterNeeded</th>
+				<th>PrimaryIssue</th>
+				<th>Duration</th>
+				<th>Specialization</th>
+				<th>Consultant Email</th>
+				<th>User Email</th>
+				<th>Status</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -71,9 +75,13 @@ else
 				<tr>
 					<td>@appointmentsNganVHH.AppointmentNganVHHID</td>
 					<td>@appointmentsNganVHH.AppointmentDateTime</td>
-					<td>@appointmentsNganVHH.ConsultationType</td>
 					<td>@appointmentsNganVHH.AssessmentType</td>
-					<td>@appointmentsNganVHH.IsInterpreterNeeded</td>
+					<td>@appointmentsNganVHH.PrimaryIssue</td>
+					<td>@appointmentsNganVHH.Duration</td>
+					<td>@appointmentsNganVHH.Consultant?.Specialization</td>
+					<td>@appointmentsNganVHH.Consultant?.User?.Email</td>
+					<td>@appointmentsNganVHH.User?.Email</td>
+					<td>@appointmentsNganVHH.Status</td>
 					<td>
 						<a href="/AppointmentsNganVHHs/AppointmentsNganVHHDetail/@appointmentsNganVHH.AppointmentNganVHHID" class="btn btn-sm btn-primary">Detail</a>
 						<a href="/AppointmentsNganVHHs/AppointmentsNganVHHForm/@appointmentsNganVHH.AppointmentNganVHHID" class="btn btn-sm btn-warning">Edit</a>
@@ -107,6 +115,7 @@ else
 	private async Task LoadAll()
 	{
 		appointmentsNganVHHs = await _serviceProviders.AppointmentsNganVHHService.GetAllAsync();
+		appointmentsNganVHHs = appointmentsNganVHHs.OrderByDescending(a => a.AppointmentNganVHHID).ToList();
 	}
 
 	private async Task Search()
@@ -116,6 +125,7 @@ else
 			Duration,
 			Specialization ?? string.Empty
 		);
+		appointmentsNganVHHs = appointmentsNganVHHs.OrderByDescending(a => a.AppointmentNganVHHID).ToList();
 	}
 
 	private async Task ResetSearch()

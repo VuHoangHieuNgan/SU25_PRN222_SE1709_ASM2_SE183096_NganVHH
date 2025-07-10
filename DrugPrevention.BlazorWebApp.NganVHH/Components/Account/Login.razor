@@ -6,6 +6,7 @@
 @using DrugPrevention.Services.NganVHH
 @inject IHttpContextAccessor HttpContextAccessor
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @layout Layout.EmptyLayout  
 
 <!DOCTYPE html>
@@ -50,7 +51,6 @@
 									}
 
 									<form method="post" action="/login-handler">
-										<AntiforgeryToken />
 										<input name="__RequestVerificationToken" type="hidden" value="@token" />
 
 										<div class="mb-3">
@@ -153,6 +153,15 @@
 
 	protected override async Task OnInitializedAsync()
 	{
+		var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+
+		if (user.Identity != null && user.Identity.IsAuthenticated)
+		{
+			// Đã đăng nhập thì chuyển sang trang danh sách
+			_navigationManager.NavigateTo("/AppointmentsNganVHHs/AppointmentsNganVHHList", forceLoad: true);
+		}
+
 		var tokens = Antiforgery.GetTokens(HttpContextAccessor.HttpContext!);
 		token = tokens.RequestToken!;
 	}

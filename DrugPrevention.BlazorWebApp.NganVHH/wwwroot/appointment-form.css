@@ -1,0 +1,249 @@
+/* Appointment Form Styles */
+.appointment-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 0;
+}
+
+.appointment-card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: 2rem 0;
+}
+
+.card-header-custom {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.card-header-custom h2 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.card-header-custom .subtitle {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+.card-body-custom {
+    padding: 2rem;
+}
+
+.form-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group-custom {
+    margin-bottom: 1.5rem;
+}
+
+.form-column-full {
+    grid-column: 1 / -1;
+}
+
+.form-label-custom {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.form-label-custom i {
+    margin-right: 0.5rem;
+    color: #4299e1;
+    width: 16px;
+}
+
+.form-control-custom, .form-select-custom {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8fafc;
+}
+
+.form-control-custom:focus, .form-select-custom:focus {
+    outline: none;
+    border-color: #4299e1;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.textarea-custom {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.radio-group-custom {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.radio-item-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    background-color: #f8fafc;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    flex: 1;
+}
+
+.radio-item-custom:hover {
+    border-color: #4299e1;
+    background-color: #ebf8ff;
+}
+
+.radio-item-custom input[type="radio"]:checked + .form-check-label,
+.radio-item-custom:has(input[type="radio"]:checked) {
+    border-color: #4299e1;
+    background-color: #ebf8ff;
+    color: #2b6cb0;
+}
+
+.form-check-label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-group-custom {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f1f5f9;
+}
+
+.btn-primary-custom {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+}
+
+.btn-secondary-custom {
+    background: #6c757d;
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-secondary-custom:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.btn-danger-custom {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-danger-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+}
+
+.alert-custom {
+    border-radius: 10px;
+    border: none;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.error-message {
+    color: #e53e3e;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-columns {
+        grid-template-columns: 1fr;
+    }
+    
+    .radio-group-custom {
+        flex-direction: column;
+    }
+    
+    .btn-group-custom {
+        flex-direction: column;
+    }
+    
+    .appointment-container {
+        padding: 1rem 0;
+    }
+    
+    .card-body-custom {
+        padding: 1rem;
+    }
+    
+    .card-header-custom {
+        padding: 1.5rem;
+    }
+    
+    .card-header-custom h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Input readonly styles */
+.form-control-custom[readonly] {
+    background-color: #f1f5f9;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+/* Focus styles for radio buttons */
+.form-check-input:focus {
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+} 
