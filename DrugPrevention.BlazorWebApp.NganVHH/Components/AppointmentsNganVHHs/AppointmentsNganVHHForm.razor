@@ -110,15 +110,6 @@
 
 			@if (IsEditMode)
 			{
-				@* <div class="col-md-6">
-					<label class="form-label fw-semibold">Status</label>
-					<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.Status" @onchange="OnStatusChanged">
-						<option>Scheduled</option>
-						<option>In-Progress</option>
-						<option>Completed</option>
-						<option>Cancelled</option>
-					</InputSelect>
-				</div> *@
 				<InputSelect TValue="string"
 							 class="form-select"
 							 Value="@appointmentsNganVHH.Status"

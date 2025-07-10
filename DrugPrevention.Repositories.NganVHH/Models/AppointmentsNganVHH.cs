@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
@@ -33,17 +34,23 @@ public partial class AppointmentsNganVHH
     /// <summary>
     /// Liên kết đến bảng ConsultantsTrongLH để xác định chuyên gia tư vấn phụ trách
     /// </summary>
+    [Required]
     public int ConsultantID { get; set; }
 
+    [Required]
+    [FutureOrPresent(ErrorMessage = "Ngày giờ phải là hiện tại hoặc tương lai!")]
     [Column(TypeName = "datetime")]
     public DateTime AppointmentDateTime { get; set; }
 
+    [Required]
+    [Range(30, 480, ErrorMessage = "Duration phải từ 30 - 400 phút")]
     public int Duration { get; set; }
 
     [Required]
     [StringLength(50)]
     public string ConsultationType { get; set; }
 
+    [Required]
     [StringLength(50)]
     public string AssessmentType { get; set; }
 
@@ -62,13 +69,14 @@ public partial class AppointmentsNganVHH
     [StringLength(20)]
     public string Status { get; set; }
 
-    [RegularExpression(@"^\d+.?\d{0,2}$", ErrorMessage ="Invalid Feedback Rating")]
-    [Range(1, 5, ErrorMessage = "Ranking is between 1 to 5")]
+    [RegularExpression(@"^\d+.?\d{0,2}$", ErrorMessage = "FeedbackRating phải là số nguyên!")]
+    [Range(1, 5, ErrorMessage = "FeedbackRating phải là số nguyên (1, 2, 3, 4, hoặc 5), không được là số thập phân!")]
     public int? FeedbackRating { get; set; }
 
     public string Notes { get; set; }
 
     [StringLength(500)]
+    [Url(ErrorMessage = "RecordingLink phải là một đường link hợp lệ!")]
     public string RecordingLink { get; set; }
 
     [ForeignKey("ConsultantID")]
