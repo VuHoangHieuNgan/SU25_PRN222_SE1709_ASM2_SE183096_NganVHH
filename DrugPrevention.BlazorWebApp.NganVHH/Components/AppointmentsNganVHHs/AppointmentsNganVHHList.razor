@@ -26,10 +26,18 @@
 			<button class="btn btn-primary" @onclick="Search">Tìm kiếm</button>
 			<button class="btn btn-secondary ms-2" @onclick="ResetSearch">Làm mới</button>
 		</div>
+		<div class="col-auto">
+			<select class="form-select" @onchange="ChangePageSize" style="width: auto;">
+				<option value="5" selected="@(PageSize == 5)">5 / trang</option>
+				<option value="10" selected="@(PageSize == 10)">10 / trang</option>
+				<option value="20" selected="@(PageSize == 20)">20 / trang</option>
+				<option value="50" selected="@(PageSize == 50)">50 / trang</option>
+			</select>
+		</div>
 	</div>
 </div>
 
-	@if (appointmentsNganVHHs == null)
+@if (appointmentsNganVHHs == null)
 {
 	<div class="d-flex justify-content-center align-items-center" style="height: 300px;">
 		<div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
@@ -50,7 +58,6 @@
 			</div>
 			<div class="spoke"></div>
 		</div>
-
 	</div>
 }
 else
@@ -87,10 +94,52 @@ else
 						<a href="/AppointmentsNganVHHs/AppointmentsNganVHHForm/@appointmentsNganVHH.AppointmentNganVHHID" class="btn btn-sm btn-warning">Edit</a>
 					</td>
 				</tr>
-
 			}
 		</tbody>
 	</table>
+
+	<!-- Pagination - Chỉ hiển thị khi có nhiều hơn 1 trang -->
+	@if (TotalPages > 1)
+	{
+		<nav aria-label="Page navigation">
+			<ul class="pagination justify-content-center">
+				<li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
+					<button class="page-link" @onclick="() => ChangePage(CurrentPage - 1)" disabled="@(CurrentPage == 1)">
+						<i class="bi bi-chevron-left"></i> Previous
+					</button>
+				</li>
+
+				@for (int i = Math.Max(1, CurrentPage - 2); i <= Math.Min(TotalPages, CurrentPage + 2); i++)
+				{
+					<li class="page-item @(i == CurrentPage ? "active" : "")">
+						<button class="page-link" @onclick="() => ChangePage(i)">@i</button>
+					</li>
+				}
+
+				<li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
+					<button class="page-link" @onclick="() => ChangePage(CurrentPage + 1)" disabled="@(CurrentPage == TotalPages)">
+						Next <i class="bi bi-chevron-right"></i>
+					</button>
+				</li>
+			</ul>
+		</nav>
+	}
+
+	<!-- Pagination Info -->
+	@if (TotalRecords > 0)
+	{
+		<div class="text-center mt-3">
+			<small class="text-muted">
+				Trang @CurrentPage / @Math.Max(1, TotalPages) - Hiển thị @((CurrentPage - 1) * PageSize + 1) đến @(Math.Min(CurrentPage * PageSize, TotalRecords)) / @TotalRecords kết quả
+			</small>
+		</div>
+	}
+	else
+	{
+		<div class="text-center mt-3">
+			<small class="text-muted">Không có dữ liệu để hiển thị</small>
+		</div>
+	}
 }
 
 @code {
@@ -100,32 +149,71 @@ else
 	public int? Duration { get; set; }
 	public string Specialization { get; set; } = string.Empty;
 
-	[Parameter]
 	public int CurrentPage { get; set; } = 1;
-	[Parameter]
 	public int TotalPages { get; set; }
-	[Parameter]
 	public int PageSize { get; set; } = 10;
+	public int TotalRecords { get; set; }
+
+	private bool isSearching = false; // Flag để biết đang search hay load all
 
 	protected override async Task OnInitializedAsync()
 	{
-		await LoadAll();
+		await LoadData();
 	}
 
-	private async Task LoadAll()
+	private async Task LoadData()
 	{
-		appointmentsNganVHHs = await _serviceProviders.AppointmentsNganVHHService.GetAllAsync();
+		if (isSearching)
+		{
+			// Server-side pagination cho search
+			appointmentsNganVHHs = await _serviceProviders.AppointmentsNganVHHService.SearchAsync(
+				PrimaryIssue ?? string.Empty,
+				Duration,
+				Specialization ?? string.Empty,
+				CurrentPage,
+				PageSize
+			);
+			
+			// Lấy tổng số records cho search
+			TotalRecords = await _serviceProviders.AppointmentsNganVHHService.GetSearchCountAsync(
+				PrimaryIssue ?? string.Empty,
+				Duration,
+				Specialization ?? string.Empty
+			);
+		}
+		else
+		{
+			// Load all với pagination - sử dụng search với empty parameters
+			appointmentsNganVHHs = await _serviceProviders.AppointmentsNganVHHService.SearchAsync(
+				string.Empty,
+				null,
+				string.Empty,
+				CurrentPage,
+				PageSize
+			);
+			
+			// Lấy tổng số records
+			TotalRecords = await _serviceProviders.AppointmentsNganVHHService.GetTotalCountAsync();
+		}
+
+		// Tính tổng số trang
+		TotalPages = (int)Math.Ceiling((double)TotalRecords / PageSize);
+		
+		// Đảm bảo CurrentPage hợp lệ
+		if (CurrentPage > TotalPages && TotalPages > 0)
+			CurrentPage = TotalPages;
+		if (CurrentPage < 1)
+			CurrentPage = 1;
+
+		// Sắp xếp theo ID giảm dần (nếu cần)
 		appointmentsNganVHHs = appointmentsNganVHHs.OrderByDescending(a => a.AppointmentNganVHHID).ToList();
 	}
 
 	private async Task Search()
 	{
-		appointmentsNganVHHs = await _serviceProviders.AppointmentsNganVHHService.SearchAsync(
-			PrimaryIssue ?? string.Empty,
-			Duration,
-			Specialization ?? string.Empty
-		);
-		appointmentsNganVHHs = appointmentsNganVHHs.OrderByDescending(a => a.AppointmentNganVHHID).ToList();
+		isSearching = true;
+		CurrentPage = 1; // Reset về trang 1 khi search
+		await LoadData();
 	}
 
 	private async Task ResetSearch()
@@ -133,7 +221,30 @@ else
 		PrimaryIssue = string.Empty;
 		Duration = null;
 		Specialization = string.Empty;
-		await LoadAll();
+		isSearching = false;
+		CurrentPage = 1;
+		await LoadData();
+	}
+
+	private async Task ChangePage(int page)
+	{
+		if (page >= 1 && page <= TotalPages && page != CurrentPage)
+		{
+			CurrentPage = page;
+			await LoadData();
+			StateHasChanged();
+		}
+	}
+
+	private async Task ChangePageSize(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out int newPageSize))
+		{
+			PageSize = newPageSize;
+			CurrentPage = 1; // Reset về trang 1 khi thay đổi page size
+			await LoadData();
+			StateHasChanged();
+		}
 	}
 
 	private void NavigateToCreate()

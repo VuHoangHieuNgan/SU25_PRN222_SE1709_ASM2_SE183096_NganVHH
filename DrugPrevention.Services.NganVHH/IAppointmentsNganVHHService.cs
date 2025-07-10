@@ -13,6 +13,9 @@ namespace DrugPrevention.Services.NganVHH
         Task<AppointmentsNganVHH> GetByIdAsync(int code);
 
         Task<List<AppointmentsNganVHH>> SearchAsync(string primaryIssue, int? duration, string specialization);
+        Task<List<AppointmentsNganVHH>> SearchAsync(string primaryIssue, int? duration, string specialization, int pageNumber, int pageSize);
+        Task<int> GetTotalCountAsync();
+        Task<int> GetSearchCountAsync(string primaryIssue, int? duration, string specialization);
 
         Task<int> CreateAsync(AppointmentsNganVHH appointment);
 

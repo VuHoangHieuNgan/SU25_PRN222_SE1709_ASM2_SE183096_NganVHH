@@ -29,6 +29,22 @@ namespace DrugPrevention.Services.NganVHH
         {
             return await _unitOfWork.AppointmentsNganVHHRepository.SearchAsync(primaryIssue, duration, specialization);
         }
+
+        public async Task<List<AppointmentsNganVHH>> SearchAsync(string primaryIssue, int? duration, string specialization, int pageNumber, int pageSize)
+        {
+            return await _unitOfWork.AppointmentsNganVHHRepository.SearchAsync(primaryIssue, duration, specialization, pageNumber, pageSize);
+        }
+
+        public async Task<int> GetTotalCountAsync()
+        {
+            return await _unitOfWork.AppointmentsNganVHHRepository.GetTotalCountAsync();
+        }
+
+        public async Task<int> GetSearchCountAsync(string primaryIssue, int? duration, string specialization)
+        {
+            return await _unitOfWork.AppointmentsNganVHHRepository.GetSearchCountAsync(primaryIssue, duration, specialization);
+        }
+
         public async Task<int> CreateAsync(AppointmentsNganVHH item)
         {
             await _unitOfWork.ClearTracking();

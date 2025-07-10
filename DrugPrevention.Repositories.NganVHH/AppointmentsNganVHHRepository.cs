@@ -49,5 +49,52 @@ namespace DrugPrevention.Repositories.NganVHH
 
             return list ?? new List<AppointmentsNganVHH>();
         }
+
+        // Pagination methods
+        public async Task<List<AppointmentsNganVHH>> GetAllAsync(int pageNumber, int pageSize)
+        {
+            return await _context.AppointmentsNganVHHs
+                .Include(a => a.Consultant)
+                    .ThenInclude(c => c.User)
+                .Include(a => a.User)
+                .OrderByDescending(a => a.AppointmentNganVHHID)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync() ?? new List<AppointmentsNganVHH>();
+        }
+
+        public async Task<List<AppointmentsNganVHH>> SearchAsync(string primaryIssue, int? duration, string specialization, int pageNumber, int pageSize)
+        {
+            return await _context.AppointmentsNganVHHs
+                .Include(i => i.Consultant)
+                    .ThenInclude(c => c.User)
+                .Include(i => i.User)
+                .Where(i =>
+                    (i.PrimaryIssue.Contains(primaryIssue) || string.IsNullOrEmpty(primaryIssue))
+                    && (i.Duration == duration || duration == null)
+                    && (i.Consultant.Specialization.Contains(specialization) || string.IsNullOrEmpty(specialization))
+                )
+                .OrderByDescending(a => a.AppointmentNganVHHID)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync() ?? new List<AppointmentsNganVHH>();
+        }
+
+        public async Task<int> GetTotalCountAsync()
+        {
+            return await _context.AppointmentsNganVHHs.CountAsync();
+        }
+
+        public async Task<int> GetSearchCountAsync(string primaryIssue, int? duration, string specialization)
+        {
+            return await _context.AppointmentsNganVHHs
+                .Include(i => i.Consultant)
+                .Where(i =>
+                    (i.PrimaryIssue.Contains(primaryIssue) || string.IsNullOrEmpty(primaryIssue))
+                    && (i.Duration == duration || duration == null)
+                    && (i.Consultant.Specialization.Contains(specialization) || string.IsNullOrEmpty(specialization))
+                )
+                .CountAsync();
+        }
     }
 }
