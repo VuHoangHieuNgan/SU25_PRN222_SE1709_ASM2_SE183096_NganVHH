@@ -34,7 +34,7 @@
 
 			<div class="col-md-6">
 				<label class="form-label fw-semibold">UserID</label>
-				<InputSelect class="form-control" @bind-Value="appointmentsNganVHH.UserID">
+				<InputSelect class="form-control" @bind-Value="appointmentsNganVHH.UserID" disabled="@(!IsFieldEnabled("UserID"))">
 					<option value="">-- Chọn người cần tư vấn --</option>
 					@foreach (var user in usersTuyenTMs)
 					{
@@ -46,7 +46,7 @@
 
 			<div class="col-md-6">
 				<label class="form-label fw-semibold">ConsultantID</label>
-				<InputSelect class="form-control" @bind-Value="appointmentsNganVHH.ConsultantID">
+				<InputSelect class="form-control" @bind-Value="appointmentsNganVHH.ConsultantID" disabled="@(!IsFieldEnabled("ConsultantID"))">
 					<option value="">-- Chọn chuyên gia tư vấn --</option>
 					@foreach (var c in consultantsTrongLHs)
 					{
@@ -57,12 +57,12 @@
 
 			<div class="col-md-6">
 				<label class="form-label fw-semibold">AppointmentDateTime</label>
-				<InputDate Type="InputDateType.DateTimeLocal" class="form-control" @bind-Value="appointmentsNganVHH.AppointmentDateTime" />
+				<InputDate Type="InputDateType.DateTimeLocal" class="form-control" @bind-Value="appointmentsNganVHH.AppointmentDateTime" disabled="@(!IsFieldEnabled("AppointmentDateTime"))" />
 			</div>
 
 			<div class="col-md-6">
 				<label class="form-label fw-semibold">Duration</label>
-				<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.Duration">
+				<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.Duration" disabled="@(!IsFieldEnabled("Duration"))">
 					<option value="30">30 phút</option>
 					<option value="45">45 phút</option>
 					<option value="60" selected>60 phút</option>
@@ -74,7 +74,7 @@
 
 			<div class="col-md-6">
 				<label class="form-label fw-semibold">ConsultationType</label>
-				<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.ConsultationType">
+				<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.ConsultationType" disabled="@(!IsFieldEnabled("ConsultationType"))">
 					<option>Online</option>
 					<option>In-person</option>
 				</InputSelect>
@@ -82,12 +82,12 @@
 
 			<div class="col-md-6">
 				<label class="form-label fw-semibold">AssessmentType</label>
-				<InputText class="form-control" @bind-Value="appointmentsNganVHH.AssessmentType" />
+				<InputText class="form-control" @bind-Value="appointmentsNganVHH.AssessmentType" disabled="@(!IsFieldEnabled("AssessmentType"))" />
 			</div>
 
 			<div class="col-md-6">
 				<label class="form-label fw-semibold">IsInterpreterNeeded</label>
-				<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.IsInterpreterNeeded">
+				<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.IsInterpreterNeeded" disabled="@(!IsFieldEnabled("IsInterpreterNeeded"))">
 					<option value="true">Có</option>
 					<option value="false">Không</option>
 				</InputSelect>
@@ -95,7 +95,7 @@
 
 			<div class="col-md-6">
 				<label class="form-label fw-semibold">RiskLevel</label>
-				<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.RiskLevel">
+				<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.RiskLevel" disabled="@(!IsFieldEnabled("RiskLevel"))">
 					<option value="">-- Chọn --</option>
 					<option>Low</option>
 					<option>Medium</option>
@@ -105,14 +105,14 @@
 
 			<div class="col-12">
 				<label class="form-label fw-semibold">PrimaryIssue</label>
-				<InputTextArea class="form-control" @bind-Value="appointmentsNganVHH.PrimaryIssue" rows="2" maxlength="255" />
+				<InputTextArea class="form-control" @bind-Value="appointmentsNganVHH.PrimaryIssue" rows="2" maxlength="255" disabled="@(!IsFieldEnabled("PrimaryIssue"))" />
 			</div>
 
 			@if (IsEditMode)
 			{
 				<div class="col-md-6">
 					<label class="form-label fw-semibold">Status</label>
-					<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.Status">
+					<InputSelect class="form-select" @bind-Value="appointmentsNganVHH.Status" @onchange="OnStatusChanged">
 						<option>Scheduled</option>
 						<option>In-Progress</option>
 						<option>Completed</option>
@@ -122,18 +122,18 @@
 
 				<div class="col-md-6">
 					<label class="form-label fw-semibold">FeedbackRating</label>
-					<InputNumber class="form-control" @bind-Value="appointmentsNganVHH.FeedbackRating" />
+					<InputNumber class="form-control" @bind-Value="appointmentsNganVHH.FeedbackRating" disabled="@(!IsFieldEnabled("FeedbackRating"))" />
 				</div>
 
 				<div class="col-12">
 					<label class="form-label fw-semibold">RecordingLink</label>
-					<InputText class="form-control" @bind-Value="appointmentsNganVHH.RecordingLink" />
+					<InputText class="form-control" @bind-Value="appointmentsNganVHH.RecordingLink" disabled="@(!IsFieldEnabled("RecordingLink"))" />
 				</div>
 			}
 
 			<div class="col-12">
 				<label class="form-label fw-semibold">Notes</label>
-				<InputTextArea class="form-control" @bind-Value="appointmentsNganVHH.Notes" rows="3" />
+				<InputTextArea class="form-control" @bind-Value="appointmentsNganVHH.Notes" rows="3" disabled="@(!IsFieldEnabled("Notes"))" />
 			</div>
 		</div>
 
@@ -148,6 +148,7 @@
 	</div>
 </EditForm>
 
+<script src="js/appointment-validate.js"></script>
 
 @code {
 	[Parameter]
@@ -207,8 +208,26 @@
 		}
 	}
 
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			// Clear any previous validation errors
+			await _jsRuntime.InvokeVoidAsync("clearAllErrors");
+		}
+	}
+
 		protected async Task SaveAppointmentNganVHH()
 	{
+		// Gọi JavaScript validation trước khi submit
+		bool isValid = await _jsRuntime.InvokeAsync<bool>("validateAppointmentForm");
+		
+		if (!isValid)
+		{
+			// Validation failed - không submit
+			return;
+		}
+
 		int result = 0;
 
 		appointmentsNganVHH.User = null;
@@ -233,5 +252,29 @@
 			_navigationManager.NavigateTo("/AppointmentsNganVHHs/AppointmentsNganVHHList");
 		}
 	}
-}
+
+	private bool IsFieldEnabled(string fieldName)
+	{
+		// Trong mode Create, cho phép edit hầu hết các field trừ feedback và recording
+		if (!IsEditMode)
+		{
+			return fieldName != "FeedbackRating" && fieldName != "RecordingLink";
+		}
+
+		// Dựa vào Status để quyết định field nào được enable
+		return appointmentsNganVHH.Status switch
+		{
+			"Scheduled" => fieldName is "UserID" or "ConsultantID" or "AppointmentDateTime" or "Duration" or "ConsultationType" or "AssessmentType" or "IsInterpreterNeeded" or "RiskLevel" or "PrimaryIssue" or "Notes",
+			"In-Progress" => fieldName is "Duration" or "AssessmentType" or "PrimaryIssue" or "RiskLevel" or "Notes" or "FeedbackRating" or "RecordingLink",
+			"Completed" => fieldName is "FeedbackRating" or "RecordingLink" or "Notes",
+			"Cancelled" => fieldName == "Notes",
+			_ => false
+		};
+	}
+
+	private void OnStatusChanged(ChangeEventArgs e)
+	{
+		appointmentsNganVHH.Status = e.Value?.ToString() ?? "";
+		StateHasChanged();
+	}
 }
