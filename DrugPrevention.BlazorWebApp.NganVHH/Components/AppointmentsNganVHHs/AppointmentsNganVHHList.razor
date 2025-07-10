@@ -98,31 +98,75 @@ else
 		</tbody>
 	</table>
 
-	<!-- Pagination - Chỉ hiển thị khi có nhiều hơn 1 trang -->
+	<!-- Modern Bootstrap Pagination - Chỉ hiển thị khi có nhiều hơn 1 trang -->
 	@if (TotalPages > 1)
 	{
-		<nav aria-label="Page navigation">
-			<ul class="pagination justify-content-center">
-				<li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
-					<button class="page-link" @onclick="() => ChangePage(CurrentPage - 1)" disabled="@(CurrentPage == 1)">
-						<i class="bi bi-chevron-left"></i> Previous
-					</button>
-				</li>
-
-				@for (int i = Math.Max(1, CurrentPage - 2); i <= Math.Min(TotalPages, CurrentPage + 2); i++)
-				{
-					<li class="page-item @(i == CurrentPage ? "active" : "")">
-						<button class="page-link" @onclick="() => ChangePage(i)">@i</button>
+		<div class="d-flex justify-content-center mt-4">
+			<nav aria-label="Pagination Navigation">
+				<ul class="pagination">
+					<!-- First Page Button -->
+					<li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
+						<button class="page-link" @onclick="() => ChangePage(1)" disabled="@(CurrentPage == 1)" title="Trang đầu">
+							<i class="bi bi-chevron-double-left"></i>
+							<span class="d-none d-sm-inline ms-1">Đầu</span>
+						</button>
 					</li>
-				}
+					
+					<!-- Previous Page Button -->
+					<li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
+						<button class="page-link" @onclick="() => ChangePage(CurrentPage - 1)" disabled="@(CurrentPage == 1)" title="Trang trước">
+							<i class="bi bi-chevron-left"></i>
+							<span class="d-none d-sm-inline ms-1">Trước</span>
+						</button>
+					</li>
 
-				<li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
-					<button class="page-link" @onclick="() => ChangePage(CurrentPage + 1)" disabled="@(CurrentPage == TotalPages)">
-						Next <i class="bi bi-chevron-right"></i>
-					</button>
-				</li>
-			</ul>
-		</nav>
+					<!-- Page Numbers -->
+					@{
+						int startPage = Math.Max(1, CurrentPage - 2);
+						int endPage = Math.Min(TotalPages, CurrentPage + 2);
+						
+						// Đảm bảo hiển thị tối đa 5 pages
+						if (endPage - startPage < 4)
+						{
+							if (startPage == 1)
+								endPage = Math.Min(TotalPages, startPage + 4);
+							else if (endPage == TotalPages)
+								startPage = Math.Max(1, endPage - 4);
+						}
+					}
+
+					@for (int i = startPage; i <= endPage; i++)
+					{
+						int pageNum = i; // Capture for closure
+						<li class="page-item @(pageNum == CurrentPage ? "active" : "")">
+							<button class="page-link" @onclick="() => ChangePage(pageNum)">
+								@pageNum
+								@if (pageNum == CurrentPage)
+								{
+									<span class="visually-hidden">(current)</span>
+								}
+							</button>
+						</li>
+					}
+
+					<!-- Next Page Button -->
+					<li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
+						<button class="page-link" @onclick="() => ChangePage(CurrentPage + 1)" disabled="@(CurrentPage == TotalPages)" title="Trang tiếp">
+							<span class="d-none d-sm-inline me-1">Tiếp</span>
+							<i class="bi bi-chevron-right"></i>
+						</button>
+					</li>
+					
+					<!-- Last Page Button -->
+					<li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
+						<button class="page-link" @onclick="() => ChangePage(TotalPages)" disabled="@(CurrentPage == TotalPages)" title="Trang cuối">
+							<span class="d-none d-sm-inline me-1">Cuối</span>
+							<i class="bi bi-chevron-double-right"></i>
+						</button>
+					</li>
+				</ul>
+			</nav>
+		</div>
 	}
 
 	<!-- Pagination Info -->
@@ -151,7 +195,7 @@ else
 
 	public int CurrentPage { get; set; } = 1;
 	public int TotalPages { get; set; }
-	public int PageSize { get; set; } = 10;
+	public int PageSize { get; set; } = 5;
 	public int TotalRecords { get; set; }
 
 	private bool isSearching = false; // Flag để biết đang search hay load all
